@@ -1,14 +1,19 @@
 const { request, response } = require("express");
-const User = require('../models/user')
+const {createCode} = require("../helpers/createCode");
+const {encryptPwd}= require("../helpers/encryptPwd");
+const User = require('../models/user');
 
 
 const saveUser = async(req = request, res = response) => {
     const {name,email,password} = req.body
-    const code = "89ya89dy9823y"
+    const {type} = req.type
+    
+    //Create code 
+    const code =  await createCode()
+     //Encrypt password
+    const user = new User({name,email,code,type})
 
-    const user = new User({
-        name,email,password,code
-    })
+    user.password = encryptPwd(password)
 
     await user.save()
 

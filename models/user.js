@@ -23,10 +23,9 @@ const UserSchema = Schema({
         default: Date.now
     },
     type: {
-        type: String,
-        require: true,
-        default: 'BORROWER',
-        enum: ['MONEY_LENDER', 'BORROWER']
+        type: Schema.Types.ObjectId,
+        ref: 'UserType',
+        require: true
     },
     code: {
         type: String,
@@ -38,7 +37,7 @@ const UserSchema = Schema({
 
 
 UserSchema.methods.toJSON = function(){
-    const {__v,password, _id, ...user} = this.toObject()
+    const {__v, password, _id,type , ...user} = this.toObject()
     user.uid = _id
     return user
 }
