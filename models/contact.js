@@ -2,21 +2,31 @@ const { Schema, model } = require("mongoose");
 
 
 const ContactSchema = Schema({
-    userMoneyLender: {
+    userRequest: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    userBorrower: {
+    userPending: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    userRequesAccepted: {
+        type: Boolean,
+        require: true,
+        default: true
+    },
+    userPendingAccepted: {
+        type: Boolean,
+        require: true,
+        default: false
     }
     
 })
 
 ContactSchema.methods.toJSON = function() {
-    const {__v, ...data } = this.toObject()
+    const data = {id,id} = this.toObject()
     return data
 }
 

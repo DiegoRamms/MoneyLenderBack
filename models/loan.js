@@ -1,6 +1,11 @@
 const { Schema, model, SchemaTypes } = require("mongoose")
 
 const LoanSchema = Schema({
+    contactId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Contact',
+        required: true
+    },
     userMoneyLender: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -12,8 +17,8 @@ const LoanSchema = Schema({
         required: true
     },
     amount: {
-        type: Schema.Types.Decimal128,
-        default: 0.00
+        type: String,
+        default: "0.00"
     },
     dateStart: {
         type: Date,
@@ -26,12 +31,43 @@ const LoanSchema = Schema({
     paymentsTime: {
         type: String,
         require: true,
-        default: 'MONTH',
-        enum: ['MONTHLY','WEEKLY','DAILY','ONCE']
+        default: 'MONTHLY',
+        enum: ['YEARLY','MONTHLY','WEEKLY','FORTNIGHTLY','DAILY','ONCE']
+    },
+    interestTime: {
+        type: String,
+        require: true,
+        default: 'YEARLY',
+        enum: ['YEARLY','MONTHLY','WEEKLY','FORTNIGHTLY','DAILY','ONCE']
     },
     interestPercent: {
-        type: Schema.Types.Decimal128,
-        default: 0.00
+        type: String,
+        default: "0.00"
+    },
+    status: {
+        type: String,
+        require: true,
+        default: 'PENDING',
+        enum: ['PENDING','IN_PROGRESS','FINALIZED']
+    },
+    comment: {
+        type: String,
+        default: '',
+    },
+    type: {
+        type: String,
+        default: 'SIMPLE',
+        enum: ['COMPOUND','SIMPLE']
     }
 
 })
+
+LoanSchema.methods.toJSON = function() {
+    const {...loan} = this.toObject()
+    
+    return loan
+}
+
+
+
+module.exports = model('Loan',LoanSchema)

@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 
 const UserTypeSchema = Schema({
-    type: {
+    name: {
         type: String,
         require: [true,'El tipo de usuario es obligatorio']
     }

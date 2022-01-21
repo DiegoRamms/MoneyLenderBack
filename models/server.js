@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const { dbConnection } = require('../database/config')
+const helmet = require('helmet')
 
 class Server {
     constructor(){
@@ -8,6 +9,9 @@ class Server {
         this.port = process.env.PORT
         this.authPath = '/auth'
         this.userPath = '/user'
+        this.contactPath = '/contact'
+        this.loanPath = '/loan'
+        this.paymentPath ='/payment'
         
         // Conectar a base de datos
         this.conectarDB()
@@ -31,12 +35,17 @@ class Server {
 
         // Directorio publico
         this.app.use( express.static('public') )
+
+        // Helmet
+        this.app.use(helmet())
     }
 
     routes(){
         this.app.use(this.authPath,require('../routes/auth-routes'))
         this.app.use(this.userPath,require('../routes/user-routes'))
-    
+        this.app.use(this.contactPath,require('../routes/contacts-routes'))
+        this.app.use(this.loanPath,require('../routes/loan-routes'))
+        this.app.use(this.paymentPath,require('../routes/payment-routes'))
     }
 
     listen(){

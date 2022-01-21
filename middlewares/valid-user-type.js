@@ -7,8 +7,8 @@ const validUserType = async(req = request, res, next) => {
 
     const {nameType} = req.body
 
-    const userType = await UserType.findOne({type : nameType})
-
+    const userType = await UserType.findOne({name : nameType})
+    
     if(!userType){
         return res.json({
             status: false,

@@ -1,5 +1,4 @@
 const User = require("../models/user")
-const UserType = require("../models/user-type")
 
 
 const existUser = async(email = '') => {

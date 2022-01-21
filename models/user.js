@@ -31,8 +31,10 @@ const UserSchema = Schema({
         type: String,
         require:[true, 'El codigo es obligatorio'],
         unique: true
+    },
+    jwt: {
+        type: String
     }
-    
 })
 
 
