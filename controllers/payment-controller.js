@@ -9,16 +9,23 @@ const Payment = require("../models/payment");
 const getLoantPaymentsDetail = async (req = request,res = response) => {
     
     const {loanId} = req.body
+    const {user} = req
     const loan = await Loan.findById(loanId)
     const totalToPay = calculateSimpleTotalToPay(loan)
-    const progressPayText = calculateProgressPayText(loan)
-   
+    const payments = await Payment.find({loanId:loan._id})
+    const progressPayText = calculateProgressPayText(payments)
+    const progressPayPercentage = calculateProgressPercent(totalToPay, payments)
+    const isPaidOut = getValuePaidOut(totalToPay, payments)
+    
+
     const loanPaymentDetail = {
         totalToPay,
-        progressPayPercentage: 100.00,
-        progressPayText: "$500 de $2000",
+        progressPayPercentage,
+        progressPayText,
         nextPayMoney: "$500",
-        nextPayTime: new Date()
+        nextPayTime: new Date(),
+        isPaidOut,
+        payments
     }
 
     return res.json(baseResponse(true,"Detalle de pagos",CODE_OK_RESPONSE,loanPaymentDetail))
@@ -32,16 +39,31 @@ const createPayment = async (req = request,res = response) =>{
     const loan = await Loan.findById(loanId)
     const isMoneyLender = loan.userMoneyLender.equals(userId)
     const isBorrower = loan.userBorrower.equals(userId)
+    
 
+    
     if(!isMoneyLender && !isBorrower){
         return res.json(baseResponse(false,"Error al intentar crear pago",CODE_NOT_ALLOWED,null))
     }
+
+    if(amount <= 0){
+        return res.json(baseResponse(false, "Ingresa una cantidad mayor a 0",CODE_ERROR,null))
+    }
+
+    const totalPayments = await getTotalPaymentsByLoanId(loanId)
+    const diferenceAmountToPay = (parseFloat(loan.amount) - parseFloat(totalPayments))
+    console.log(diferenceAmountToPay)
+    if(parseFloat(amount) > diferenceAmountToPay){
+        return res.json(baseResponse(false, "No puede pasar la cantidad total prestada ",CODE_ERROR,null))
+    }
+
     
     const paymentCreated = await Payment.create({
         loanId,
+        user: userId,
         amount,
         date,
-        isAccepted: isMoneyLender //if is money lender the Status is true
+        isAccepted: isMoneyLender //if is moneylender the Status is true
     })
 
     if(!paymentCreated) {
@@ -51,14 +73,28 @@ const createPayment = async (req = request,res = response) =>{
     return res.json(baseResponse(true,"Pago creado",CODE_OK_RESPONSE,paymentCreated))
 } 
 
+const getPaymentsByLoanId = async (req = request, res = response) => {
+    
+    const { loanId } = req.body
+    const loan = await Loan.findById(loanId)
+    console.log('asd'+loan)
+    const payments = await Payment.find({loanId})
 
+    return res.json(baseResponse(true,"Prestamos obtenidos",CODE_OK_RESPONSE,payments))
+
+}
+
+const acceptPayment = async (req = request, res = response) => {
+    const { paymetId } = req.body
+    //const payment = await Payment.findByIdAndUpdate( paymetId, {isAccepted: true} )
+    return res.json(baseResponse(true,"Prestamo aceptado", CODE_ERROR, paymetId ))
+}
 
 const calculateSimpleTotalToPay = (loan) =>{
    
     const time = calculateTime(loan.dateStart,loan.dateLimit)
     let interest = 0.0
     const amountMultipliedByInterest = parseFloat(loan.amount)* (parseFloat(loan.interestPercent) / 100)
-    console.log(amountMultipliedByInterest)
 
     if(loan.interestTime == 'YEARLY'){
         interest = amountMultipliedByInterest * parseFloat(time.years)
@@ -73,10 +109,21 @@ const calculateSimpleTotalToPay = (loan) =>{
 }
 
 
-const calculateProgressPayText = (loan) =>{
-    return 100
+const calculateProgressPayText = ( payments) =>{
+    return `${getTotalAmountPayments(payments)}`
 }
 
+const calculateProgressPercent = (totalToPay, payments) => {
+    return (getTotalAmountPayments(payments) * 100) /totalToPay
+}
+
+const getTotalAmountPayments = (payments) => {
+    let totalAmountPayments = 0.0
+    payments.forEach(item => {
+        if(item.isAccepted) totalAmountPayments += parseFloat(item.amount)
+    })
+    return totalAmountPayments
+}
 
 const calculateTime = (dateStart, dateLimit) => {
     const millisecondMinute = 1000 * 60;
@@ -97,8 +144,22 @@ const calculateTime = (dateStart, dateLimit) => {
     }
     
 } 
+
+const getValuePaidOut = (totalToPay,payments) => {
+    return totalToPay <= getTotalAmountPayments(payments)
+}
+
+const getTotalPaymentsByLoanId = async(loanId) => {
+    let totalAmount = 0.0
+    const payments = await Payment.find({loanId})
+    payments.forEach(payment => {totalAmount = totalAmount + parseFloat(payment.amount)})
+    return  totalAmount
+}
  
 module.exports = {
     getLoantPaymentsDetail,
-    createPayment
+    createPayment,
+    getPaymentsByLoanId,
+    acceptPayment,
+    calculateSimpleTotalToPay
 }

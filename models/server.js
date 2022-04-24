@@ -12,6 +12,7 @@ class Server {
         this.contactPath = '/contact'
         this.loanPath = '/loan'
         this.paymentPath ='/payment'
+        this.mainDetailPath = '/main'
         
         // Conectar a base de datos
         this.conectarDB()
@@ -46,6 +47,7 @@ class Server {
         this.app.use(this.contactPath,require('../routes/contacts-routes'))
         this.app.use(this.loanPath,require('../routes/loan-routes'))
         this.app.use(this.paymentPath,require('../routes/payment-routes'))
+        this.app.use(this.mainDetailPath,require('../routes/main-detail-routes'))
     }
 
     listen(){

@@ -36,12 +36,9 @@ const login = async(req = request,res = response) => {
 
         await User.findByIdAndUpdate(user.id,{jwt})
     
-        res.json({
-            status: true,
-            msg: 'Bienvenido',
-            jwt,
-            user
-        })
+        user.jwt = jwt
+        res.json(baseResponse(true,'Bienvenido',CODE_OK_RESPONSE,user,user))
+      
     }catch(error){
         res.json({
             status: false,

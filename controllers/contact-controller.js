@@ -89,7 +89,7 @@ const getContacts = async (req = request, res = response) => {
         promiseFromRequest, promiseFromPending
     ])
 
-    console.log(user)
+
     listContactsFromRequest.forEach((item) => {
         const contact = {
             userId: item.userRequest._id,

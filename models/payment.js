@@ -6,6 +6,11 @@ const PaymentSchema = Schema({
         ref: 'Loan',
         required: true
     },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     amount: {
         type: String,
         default: "0.00"

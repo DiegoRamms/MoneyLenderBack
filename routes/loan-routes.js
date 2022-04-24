@@ -1,6 +1,6 @@
 const { Router, request, response } = require("express");
 const { check } = require("express-validator");
-const { createLoan, deleteLoan, getLoans, getLoansByUsertId, updateLoan } = require("../controllers/loan-controller");
+const { createLoan, deleteLoan, getLoans, getLoansByUsertId, updateLoan, changeStatusLoan } = require("../controllers/loan-controller");
 const {validFields} = require("../middlewares/valid-fields");
 const { validJWT } = require("../middlewares/valid-jwt");
 
@@ -51,9 +51,12 @@ router.post('/getLoansByContactId',[
     validFields
 ],getLoansByUsertId)
 
-router.post('/delailById',[
+
+router.post('/changeStatus',[
     validJWT,
-    check('loanId','Id invalido').isMongoId()
-],)
+    check('loanId','Id invalido').isMongoId(),
+    check('status','Estado invalido').isIn(['REJECTED','IN_PROGRESS','FINALIZED']),
+    validFields
+],changeStatusLoan)
 
 module.exports = router

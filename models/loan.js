@@ -40,6 +40,10 @@ const LoanSchema = Schema({
         default: 'YEARLY',
         enum: ['YEARLY','MONTHLY','WEEKLY','FORTNIGHTLY','DAILY','ONCE']
     },
+    timeStamp: {
+        type: Date,
+        default: Date.now
+    },
     interestPercent: {
         type: String,
         default: "0.00"

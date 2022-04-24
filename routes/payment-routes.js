@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
-const { getLoantPaymentsDetail, createPayment } = require("../controllers/payment-controller");
+const { getLoantPaymentsDetail, createPayment, getPaymentsByLoanId, acceptPayment } = require("../controllers/payment-controller");
 const {validFields} = require("../middlewares/valid-fields");
 const { validJWT } = require("../middlewares/valid-jwt");
 
@@ -21,6 +21,18 @@ router.post("/create",[
     validFields
 ],createPayment)
 
+
+router.post("/paymentsByLoanId",
+[
+    validJWT,
+    check('loanId','Id no valido').isMongoId(),
+    validFields,   
+], getPaymentsByLoanId)
+
+router.post("/acceptPayment",[
+    validJWT,
+    validFields
+], acceptPayment)
 
 
 module.exports = router
